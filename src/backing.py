@@ -229,7 +229,7 @@ def add_audio_effects(audio_path, reverb_rm_size, reverb_wet, reverb_dry, reverb
 def combine_audio(audio_paths, output_path, main_gain, backup_gain, inst_gain, output_format):
     main_vocal_audio = AudioSegment.from_wav(audio_paths[0]) - 4 + main_gain
     backup_vocal_audio = AudioSegment.from_wav(audio_paths[1]) - 6 + backup_gain
-    instrumental_audio = AudioSegment.from_wav(audio_paths[2]) - 7 + inst_gain
+    #instrumental_audio = AudioSegment.from_wav(audio_paths[2]) - 7 + inst_gain
     main_vocal_audio.overlay(backup_vocal_audio).overlay(instrumental_audio).export(output_path, format=output_format)
 
 
@@ -295,17 +295,17 @@ def song_cover_pipeline(song_input, voice_model, pitch_change, keep_files,
 
         if pitch_change_all != 0:
             display_progress('[~] Applying overall pitch change', 0.85, is_webui, progress)
-            instrumentals_path = pitch_shift(instrumentals_path, pitch_change_all)
+            instrumentals_path = pitch_shift(pitch_change_all)
             backup_vocals_path = pitch_shift(backup_vocals_path, pitch_change_all)
 
         display_progress('[~] Combining AI Vocals and Instrumentals...', 0.9, is_webui, progress)
-        combine_audio([ai_vocals_mixed_path, backup_vocals_path, instrumentals_path], ai_cover_path, main_gain, backup_gain, inst_gain, output_format)
+        combine_audio([ai_vocals_mixed_path, backup_vocals_path], ai_cover_path, main_gain, backup_gain, output_format)
 
         if not keep_files:
             display_progress('[~] Removing intermediate audio files...', 0.95, is_webui, progress)
             intermediate_files = [vocals_path, main_vocals_path, ai_vocals_mixed_path]
             if pitch_change_all != 0:
-                intermediate_files += [instrumentals_path, backup_vocals_path]
+                intermediate_files += [backup_vocals_path]
             for file in intermediate_files:
                 if file and os.path.exists(file):
                     os.remove(file)
